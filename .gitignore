@@ -1,0 +1,13 @@
+*.pyc
+.DS_Store
+static/*.html
+*.ipynb
+Notebooks/
+*.ini
+.env
+__pycache__/
+.*_cache
+.ipynb_checkpoints/*
+.*_cache/*
+data/*.gpx
+notebooks/*
