@@ -45,6 +45,7 @@ def plot_route_with_closed_sections(gpx_file_path: str, closed_sections: list) -
         closed_latitudes = []
         closed_longitudes = []
         start_found = False
+        end_found = False
         for lat, lon in coords:
             if not start_found:
                 if (
@@ -60,17 +61,19 @@ def plot_route_with_closed_sections(gpx_file_path: str, closed_sections: list) -
                 if (
                     geodesic(end[::-1], (lat, lon)).meters < 50
                 ):  # Correct order: (latitude, longitude)
+                    end_found = True
                     break
-
-        fig.add_trace(
-            go.Scattermapbox(
-                lat=closed_latitudes,
-                lon=closed_longitudes,
-                mode="lines",
-                line=dict(color="red", width=5),
-                name="Closed Road",
+        # Only add closed road data is start and end both found.
+        if start_found is True and end_found is True:
+            fig.add_trace(
+                go.Scattermapbox(
+                    lat=closed_latitudes,
+                    lon=closed_longitudes,
+                    mode="lines",
+                    line=dict(color="red", width=5),
+                    name="Closed Road",
+                )
             )
-        )
 
     fig.update_layout(
         mapbox_style=MAPBOX_STYLE,

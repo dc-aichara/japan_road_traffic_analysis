@@ -1,5 +1,6 @@
 import re
 from unicodedata import normalize
+from geopy.distance import geodesic
 
 import pandas as pd
 import pydash
@@ -25,6 +26,24 @@ def clean_road_names(road_name: str) -> str:
     if match:
         return match.group()
     return road_name
+
+
+def calculate_closed_road_distance(closed_road_points: list) -> float:
+    """
+    Calculate distance of closed/restricted roads.
+
+    Args:
+        closed_road_points (list): A list of start and end points of
+            restricted road.
+
+    Returns:
+        float: Length of restricted road in kilometers.
+
+    """
+    if closed_road_points and len(closed_road_points) == 2:
+        distance = geodesic(closed_road_points[0][::-1], closed_road_points[1][::-1]).km
+        return round(distance, 3)
+    return 0
 
 
 def filter_traffic_status_by_road(road_number: str, traffic_data: dict) -> list:
@@ -84,5 +103,6 @@ def filter_closed_roads(closed_roads: list):
     }
     df.rename(columns=column_mapping, inplace=True)
     df = df[df["restriction_description"].notnull()]
+    df["distance_km"] = df["coordinates"].apply(calculate_closed_road_distance)
     complete_closed_roads = df[df["restriction_description"] == "通行止"]
     return df, complete_closed_roads
