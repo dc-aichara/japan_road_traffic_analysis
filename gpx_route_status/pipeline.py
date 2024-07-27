@@ -41,16 +41,16 @@ async def get_closed_roads(gpx_file_path: str, gpx_points_interval: int = 400):
         "Getting roads numbers using Overpass API!!", icon="ℹ️"
     )
     road_numbers = get_road_numbers(road_names=roads)
-    traffic_data = []
     message_placeholder.info(
         "Getting traffic data from https://www.jartic.or.jp/!", icon="ℹ️"
     )
+    traffic_data = []
     for pref_code in prefs:
         pref_code = pref_code.replace("JP-", "")
         data = get_road_status_by_prefecture_code(pref_code)
         traffic_data.append(data)
-    closed_roads = []
     message_placeholder.info("Filtering restricted roads!!", icon="ℹ️")
+    closed_roads = []
     for _, v in road_numbers.items():
         for data in traffic_data:
             filter_data = filter_traffic_status_by_road(v, data)

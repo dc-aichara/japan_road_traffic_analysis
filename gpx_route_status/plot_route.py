@@ -9,7 +9,9 @@ MAPBOX_SECRET = config("MAPBOX_SECRET")
 MAPBOX_STYLE = config("MAPBOX_STYLE")
 
 
-def plot_route_with_closed_sections(gpx_file_path: str, closed_sections: list) -> go.Figure:
+def plot_route_with_closed_sections(
+    gpx_file_path: str, closed_sections: list
+) -> go.Figure:
     """
     Plots a GPX route with closed sections highlighted.
 

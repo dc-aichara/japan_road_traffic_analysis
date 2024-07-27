@@ -1,6 +1,5 @@
 import re
 from unicodedata import normalize
-from geopy.distance import geodesic
 
 import pandas as pd
 import pydash
@@ -28,24 +27,6 @@ def clean_road_names(road_name: str) -> str:
     return road_name
 
 
-def calculate_closed_road_distance(closed_road_points: list) -> float:
-    """
-    Calculate distance of closed/restricted roads.
-
-    Args:
-        closed_road_points (list): A list of start and end points of
-            restricted road.
-
-    Returns:
-        float: Length of restricted road in kilometers.
-
-    """
-    if closed_road_points and len(closed_road_points) == 2:
-        distance = geodesic(closed_road_points[0][::-1], closed_road_points[1][::-1]).km
-        return round(distance, 3)
-    return 0
-
-
 def filter_traffic_status_by_road(road_number: str, traffic_data: dict) -> list:
     """
     Filter traffic status data by a specific road number.
@@ -67,6 +48,32 @@ def filter_traffic_status_by_road(road_number: str, traffic_data: dict) -> list:
     return road_traffic_data
 
 
+def get_closed_road_geometry(closed_roads: dict) -> tuple:
+    """
+    Get geometry of closed/restricted roads.
+
+    Args:
+        closed_roads (dict): Traffic data of restricted/closed roads.
+
+    Returns:
+        tuple: Tuple of list of latitudes and longitudes.
+
+    """
+    types = pydash.map_(closed_roads, "geometry.type")
+    coords = pydash.map_(closed_roads, "geometry.coordinates")
+    lat_coordinates = []
+    lon_coordinates = []
+    for geo_type, coord in zip(types, coords):
+        lons, lats = [], []
+        if geo_type == "MultiLineString":
+            lons, lats = zip(*coord[0])
+        elif geo_type == "LineString":
+            lons, lats = zip(*coord)
+        lat_coordinates.append(lats)
+        lon_coordinates.append(lons)
+    return lat_coordinates, lon_coordinates
+
+
 def filter_closed_roads(closed_roads: list):
     """
     Filters and processes a list of closed roads data.
@@ -80,7 +87,8 @@ def filter_closed_roads(closed_roads: list):
             - The first DataFrame contains the processed closed roads data with
              unnecessary columns removed and remaining columns renamed.
             - The second DataFrame is a subset of the first DataFrame,
-            containing only rows where the restriction description indicates a complete road closure.
+            containing only rows where the restriction description indicates a
+            complete road closure.
     """
     df = pd.DataFrame(pydash.map_(closed_roads, "properties"))
     columns = df.columns
@@ -103,6 +111,5 @@ def filter_closed_roads(closed_roads: list):
     }
     df.rename(columns=column_mapping, inplace=True)
     df = df[df["restriction_description"].notnull()]
-    df["distance_km"] = df["coordinates"].apply(calculate_closed_road_distance)
     complete_closed_roads = df[df["restriction_description"] == "通行止"]
     return df, complete_closed_roads
