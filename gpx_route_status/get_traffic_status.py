@@ -43,7 +43,11 @@ def get_map_data(url: str) -> dict:
     if response.status_code == 200:
         return response.json()
     else:
-        raise httpx.HTTPStatusError(f"Request failed with status code: {response.status_code}", request=response.request, response=response)
+        raise httpx.HTTPStatusError(
+            f"Request failed with status code: {response.status_code}",
+            request=response.request,
+            response=response,
+        )
 
 
 def get_road_status_by_prefecture_code(pref_code: str = "21") -> dict:

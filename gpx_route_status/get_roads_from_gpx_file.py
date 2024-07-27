@@ -26,8 +26,10 @@ async def fetch_address(lat: float, lon: float) -> dict:
     Returns:
         dict: The address information in JSON format.
     """
-    url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat" \
-          f"={lat}&lon={lon}&zoom=18&addressdetails=1"
+    url = (
+        f"https://nominatim.openstreetmap.org/reverse?format=json&lat"
+        f"={lat}&lon={lon}&zoom=18&addressdetails=1"
+    )
     response = await async_client.get(url)
     return response.json()
 
@@ -72,7 +74,9 @@ async def get_multiple_road_addresses(coords: list) -> list:
     return results
 
 
-async def get_roads_and_prefecture_codes(gpx_file_path: str, interval=400) -> tuple:
+async def get_roads_and_prefecture_codes(
+    gpx_file_path: str, interval=400
+) -> tuple:
     """
     Extracts coordinates from a GPX file, samples points at regular intervals,
     and retrieves road names/numbers and prefecture codes for each sampled point.
