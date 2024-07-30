@@ -1,9 +1,13 @@
-import asyncio
+import traceback
 
+import logfire
 import streamlit as st
+from decouple import config
 
-from gpx_route_status.pipeline import get_closed_roads
+from gpx_route_status.pipeline import run_gpx_route_pipeline
 
+LOGFIRE_TOKEN = config("LOGFIRE_TOKEN")
+logfire.configure(token=LOGFIRE_TOKEN)
 st.set_page_config(layout="wide")
 
 # Streamlit app title
@@ -12,7 +16,7 @@ st.title("GPX Route Viewer with Closed Roads")
 # Upload GPX file
 uploaded_file = st.file_uploader(
     "Upload your GPX file to check restricted roads on your route.",
-    type=["gpx"]
+    type=["gpx"],
 )
 
 # Interval selection
@@ -22,19 +26,18 @@ interval = st.sidebar.selectbox(
     index=2,  # Default selection (400)
 )
 
-# Process the uploaded file only if a file is uploaded
+# Process the uploaded file only if a file is uploaded.
 if uploaded_file is not None:
     try:
         info = st.empty()
+        logfire.info(
+            f"file_name: {uploaded_file.name}, interval_value: {interval}"
+        )
+        logfire.info("Processing your GPX file. This may take a few moments...")
         info.info("Processing your GPX file. This may take a few moments...")
-        # Ensure the function is running in the event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        closed_roads, fig = loop.run_until_complete(
-            get_closed_roads(
-                gpx_file_path=uploaded_file,
-                gpx_points_interval=interval,
-            )
+        closed_roads, fig = run_gpx_route_pipeline(
+            gpx_file_path=uploaded_file,
+            gpx_points_interval=interval,
         )
         # loop.close()
         info.empty()
@@ -54,6 +57,7 @@ if uploaded_file is not None:
             mime="text/csv",
         )
     except Exception as e:
+        logfire.error(traceback.format_exc())
         st.error(f"An error occurred: {e}. Please try again with file upload.")
 else:
     st.info("Please upload a GPX file to visualize the route and closed roads.")

@@ -2,8 +2,13 @@ from __future__ import annotations
 
 import gpxpy
 import httpx
+import logfire
 import streamlit as st
+from decouple import config
 from geopy.distance import geodesic
+
+LOGFIRE_TOKEN = config("LOGFIRE_TOKEN")
+logfire.configure(token=LOGFIRE_TOKEN)
 
 
 # Function to read GPX file and extract coordinates
@@ -36,6 +41,7 @@ def extract_coordinates_from_gpx(
         for segment in track.segments:
             for point in segment.points:
                 coordinates.append((point.latitude, point.longitude))
+    logfire.info(f"Number of points is {len(coordinates)}.")
     return coordinates
 
 
