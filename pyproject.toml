@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "japan-road-traffic-analysis"
+name = "gpx_route_status"
 version = "0.1.0"
 description = ""
-authors = ["D C Aichara dcaak7@gmail.com"]
+authors = ["D C Aichara <dcaak7@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 package-mode = false
@@ -20,6 +20,7 @@ pandas = "^2.2.2"
 numpy = "^2.0.1"
 gpxpy = "^1.6.2"
 asyncio = "^3.4.3"
+logfire = "^0.48.1"
 
 
 [tool.poetry.group.dev.dependencies]

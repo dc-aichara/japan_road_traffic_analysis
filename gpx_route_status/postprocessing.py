@@ -110,6 +110,8 @@ def filter_closed_roads(closed_roads: list):
         # 'j': 'additional_info'
     }
     df.rename(columns=column_mapping, inplace=True)
-    df = df[df["restriction_description"].notnull()]
-    complete_closed_roads = df[df["restriction_description"] == "通行止"]
-    return df, complete_closed_roads
+    if not df.empty:
+        df = df[df["restriction_description"].notnull()]
+        complete_closed_roads = df[df["restriction_description"] == "通行止"]
+        return df, complete_closed_roads
+    return pd.DataFrame(), pd.DataFrame()
