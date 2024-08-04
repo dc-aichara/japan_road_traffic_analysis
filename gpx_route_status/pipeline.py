@@ -1,8 +1,6 @@
 import asyncio
 
-import logfire
 import streamlit as st
-from decouple import config
 
 from .get_roads_from_gpx_file import (
     get_road_numbers,
@@ -11,9 +9,7 @@ from .get_roads_from_gpx_file import (
 from .get_traffic_status import get_road_status_by_prefecture_code
 from .plot_route import plot_route_with_closed_sections
 from .postprocessing import filter_closed_roads, filter_traffic_status_by_road
-
-LOGFIRE_TOKEN = config("LOGFIRE_TOKEN")
-logfire.configure(token=LOGFIRE_TOKEN)
+from .utils import logfire
 
 
 async def get_closed_roads(

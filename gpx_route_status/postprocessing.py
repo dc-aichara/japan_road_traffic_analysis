@@ -4,6 +4,8 @@ from unicodedata import normalize
 import pandas as pd
 import pydash
 
+from .utils import logfire
+
 
 def clean_road_names(road_name: str) -> str:
     """
@@ -101,17 +103,18 @@ def filter_closed_roads(closed_roads: list):
         "i": "location_description",
         "p": "coordinates",
         "r": "route_name",
-        # 'cs': 'cs',
-        # 'l': 'lane_type',
-        # 'lo': 'lane_occupancy',
-        # 'pd': 'road_type',
+        "cs": "cs",
+        "l": "lane_type",
+        "lo": "lane_occupancy",
+        "pd": "road_type",
         "rd": "restriction_description",
-        # 'rn': 'restriction_id',
-        # 'j': 'additional_info'
+        "rn": "restriction_id",
+        "j": "additional_info",
     }
     df.rename(columns=column_mapping, inplace=True)
-    if not df.empty:
+    if "restriction_description" in df.columns:
         df = df[df["restriction_description"].notnull()]
         complete_closed_roads = df[df["restriction_description"] == "通行止"]
+        logfire.info(f"Number of closed roads: {len(complete_closed_roads)}.")
         return df, complete_closed_roads
     return pd.DataFrame(), pd.DataFrame()

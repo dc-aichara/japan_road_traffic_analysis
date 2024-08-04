@@ -1,10 +1,8 @@
-import traceback
-
-import logfire
 import streamlit as st
 from decouple import config
 
 from gpx_route_status.pipeline import run_gpx_route_pipeline
+from gpx_route_status.utils import logfire
 
 LOGFIRE_TOKEN = config("LOGFIRE_TOKEN")
 logfire.configure(token=LOGFIRE_TOKEN)
@@ -57,7 +55,7 @@ if uploaded_file is not None:
             mime="text/csv",
         )
     except Exception as e:
-        logfire.error(traceback.format_exc())
+        logfire.exception(str(e), _exc_info=e)
         st.error(f"An error occurred: {e}. Please try again with file upload.")
 else:
     st.info("Please upload a GPX file to visualize the route and closed roads.")
