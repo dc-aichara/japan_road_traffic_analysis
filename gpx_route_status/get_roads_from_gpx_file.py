@@ -4,11 +4,15 @@ import httpx
 import pydash
 from aiocache import Cache
 from aiocache.serializers import JsonSerializer
+from httpx import AsyncHTTPTransport
 
 from .utils import extract_coordinates_from_gpx, sample_points
 
+transport = AsyncHTTPTransport(retries=3)
+
 async_client = httpx.AsyncClient(
-    timeout=httpx.Timeout(timeout=180, connect=30, read=30, write=30)
+    timeout=httpx.Timeout(timeout=180, connect=30, read=30, write=30),
+    transport=transport,
 )
 # Cache results for 24 hour
 cache = Cache(Cache.MEMORY, serializer=JsonSerializer(), ttl=3600 * 24)
@@ -79,7 +83,8 @@ async def get_roads_and_prefecture_codes(
 ) -> tuple:
     """
     Extracts coordinates from a GPX file, samples points at regular intervals,
-    and retrieves road names/numbers and prefecture codes for each sampled point.
+    and retrieves road names/numbers and prefecture codes for each sampled
+    point.
 
     Args:
         gpx_file_path (str): The file path to the GPX file.
