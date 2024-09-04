@@ -1,4 +1,5 @@
 import asyncio
+from collections import Counter
 
 import httpx
 import pydash
@@ -107,6 +108,9 @@ async def get_roads_and_prefecture_codes(
     # Remove duplicates and print the road numbers
     unique_road_numbers = list(set(pydash.map_(addresses, ["road"])))
     prefecture_codes = list(set(pydash.map_(addresses, ["ISO3166-2-lvl4"])))
+    unique_road_numbers = [
+        road_num for road_num in unique_road_numbers if road_num is not None
+    ]
     return unique_road_numbers, prefecture_codes
 
 
@@ -139,8 +143,10 @@ def get_osm_road_info(road_name: str) -> dict:
     response = client.get(overpass_url, params={"data": overpass_query})
     data = response.json()
     road_numbers = pydash.map_(data["elements"], "tags.ref")
-    if road_numbers:
-        road_info = {road_name: f"{road_numbers[0]}号"}
+    if all(road_numbers):
+        counter = Counter([r for r in road_numbers if r is not None])
+        road_number, _ = counter.most_common(1)[0]
+        road_info = {road_name: f"{road_number}号"}
     else:
         road_info = {road_name: road_name}
 
